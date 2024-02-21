@@ -1,4 +1,5 @@
-import { Piece, Position, TeamType, samePosition } from "../../Constants.ts";
+import { TeamType, samePosition } from "../../Constants.ts";
+import { Piece, Position } from "../../models/index.ts";
 //Temporarily remove PieceType import from Constants.ts
 import { tileIsOccupied, tileIsOccupiedByOpponent } from "./GeneralRules.ts";
 
@@ -7,7 +8,7 @@ export const pawnMove = (initialPosition: Position, desiredPosition: Position, t
     const pawnDirection = (team === TeamType.OUR) ? 1 : -1;
     //Movement
     if(initialPosition.x === desiredPosition.x && desiredPosition.y - initialPosition.y === 2*pawnDirection && initialPosition.y === specialRow){
-        if(!tileIsOccupied(desiredPosition, boardState) && !tileIsOccupied({x: desiredPosition.x, y: desiredPosition.y - pawnDirection}, boardState)){
+        if(!tileIsOccupied(desiredPosition, boardState) && !tileIsOccupied(new Position(desiredPosition.x, desiredPosition.y - pawnDirection), boardState)){
             return true;
         }
     }else if(initialPosition.x === desiredPosition.x && desiredPosition.y - initialPosition.y === pawnDirection){
@@ -32,12 +33,12 @@ export const getPossiblePawnMoves = (pawn: Piece, boardState: Piece[]): Position
     const possibleMoves: Position[] = [];
     const specialRow = (pawn.team === TeamType.OUR) ? 1 : 6;
     const pawnDirection = (pawn.team === TeamType.OUR) ? 1 : -1;
-    const normalMove: Position = {x: pawn.position.x, y: pawn.position.y + pawnDirection};
-    const specialMove: Position = {x: pawn.position.x, y: normalMove.y + pawnDirection};
-    const upperLeftAttack: Position = {x: pawn.position.x - 1, y: pawn.position.y + pawnDirection};
-    const upperRightAttack: Position = {x: pawn.position.x + 1, y: pawn.position.y + pawnDirection};
-    const leftPosition: Position = {x: pawn.position.x - 1, y: pawn.position.y};
-    const rightPosition: Position = {x: pawn.position.x + 1, y: pawn.position.y};
+    const normalMove: Position = new Position(pawn.position.x, pawn.position.y + pawnDirection);
+    const specialMove: Position = new Position(pawn.position.x, normalMove.y + pawnDirection);
+    const upperLeftAttack: Position = new Position(pawn.position.x - 1, pawn.position.y + pawnDirection);
+    const upperRightAttack: Position = new Position(pawn.position.x + 1, pawn.position.y + pawnDirection);
+    const leftPosition: Position = new Position(pawn.position.x - 1, pawn.position.y);
+    const rightPosition: Position = new Position(pawn.position.x + 1, pawn.position.y);
 
     if(!tileIsOccupied(normalMove, boardState)){
         possibleMoves.push(normalMove);
