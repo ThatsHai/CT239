@@ -1,4 +1,4 @@
-import { TeamType } from "../../Constants.ts";
+import { TeamType } from "../../Types.ts";
 import { Piece, Position } from "../../models/index.ts";
 import { tileIsEmptyOrOccupiedByOpponent } from "./GeneralRules.ts";
 

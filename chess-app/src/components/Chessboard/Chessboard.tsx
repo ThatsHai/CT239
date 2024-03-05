@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 
 import Tile from "../Tile/Tile.tsx";
 import "./Chessboard.css";
-import { VERTICAL_AXIS, HORIZONTAL_AXIS, GRID_SIZE, samePosition } from '../../Constants.ts';
+import { VERTICAL_AXIS, HORIZONTAL_AXIS, GRID_SIZE } from '../../Constants.ts';
 import { Piece, Position } from "../../models/index.ts";
 
 interface Props{
@@ -70,9 +70,9 @@ export default function Chessboard({playMove, pieces}: Props) {
       const x = Math.floor((e.clientX - chessboard.offsetLeft) / GRID_SIZE);
       const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - 800) / GRID_SIZE)); //-800 to revert the mouse to correctly render from the bottom left up
      
-      const currentPiece = pieces.find(p => samePosition(p.position, grabPosition));
+      const currentPiece = pieces.find(p => p.samePosition(grabPosition));
       if(currentPiece){
-        var success = playMove(currentPiece, new Position(x, y));
+        var success = playMove(currentPiece.clone(), new Position(x, y));
         
         if(!success){
           activePiece.style.position = 'relative';
@@ -91,12 +91,12 @@ export default function Chessboard({playMove, pieces}: Props) {
     for (let j = VERTICAL_AXIS.length - 1; j >= 0; j--) {
       for (let i = 0; i < HORIZONTAL_AXIS.length; i++) {
           const number = j + i + 2;
-          const piece = pieces.find(p => samePosition(p.position, new Position(i, j)));
+          const piece = pieces.find(p => p.samePosition(new Position(i, j)));
           let image = piece ? piece.image : undefined;
 
           //If let go of the piece, the move preview of the piece will be gone
-          let currentPiece = activePiece != null ? pieces.find(p => samePosition(p.position, grabPosition)) : undefined;
-          let highlight = currentPiece?.possibleMoves ? currentPiece.possibleMoves.some(p => samePosition(p, new Position(i, j))) : false;
+          let currentPiece = activePiece != null ? pieces.find(p => p.samePosition(grabPosition)) : undefined;
+          let highlight = currentPiece?.possibleMoves ? currentPiece.possibleMoves.some(p => p.samePosition(new Position(i, j))) : false;
           
           board.push(<Tile key={`${j},${i}`} image={image} number={number} highlight={highlight}/>);
       }

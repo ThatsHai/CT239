@@ -1,4 +1,4 @@
-import {  TeamType, samePosition } from "../../Constants.ts";
+import { TeamType } from "../../Types.ts";
 import { Piece, Position } from "../../models/index.ts";
 import { tileIsEmptyOrOccupiedByOpponent, tileIsOccupied, tileIsOccupiedByOpponent } from "./GeneralRules.ts";
 
@@ -8,7 +8,7 @@ export const bishopMove = (initialPosition: Position, desiredPosition: Position,
         //Up-right
         if(desiredPosition.x > initialPosition.x && desiredPosition.y > initialPosition.y){
             let passedPosition = new Position(initialPosition.x + i, initialPosition.y + i);
-            if(samePosition(passedPosition, desiredPosition)){
+            if(passedPosition.samePosition(desiredPosition)){
                 if(tileIsEmptyOrOccupiedByOpponent(passedPosition, boardState, team)){
                     return true;
                 }
@@ -21,7 +21,7 @@ export const bishopMove = (initialPosition: Position, desiredPosition: Position,
         //Down-right
         if(desiredPosition.x > initialPosition.x && desiredPosition.y < initialPosition.y){
             let passedPosition = new Position(initialPosition.x + i, initialPosition.y - i);
-            if(samePosition(passedPosition, desiredPosition)){
+            if(passedPosition.samePosition(desiredPosition)){
                 if(tileIsEmptyOrOccupiedByOpponent(passedPosition, boardState, team)){
                     return true;
                 }
@@ -34,7 +34,7 @@ export const bishopMove = (initialPosition: Position, desiredPosition: Position,
         //Up-left
         if(desiredPosition.x < initialPosition.x && desiredPosition.y > initialPosition.y){
             let passedPosition = new Position(initialPosition.x - i, initialPosition.y + i);
-            if(samePosition(passedPosition, desiredPosition)){
+            if(passedPosition.samePosition(desiredPosition)){
                 if(tileIsEmptyOrOccupiedByOpponent(passedPosition, boardState, team)){
                     return true;
                 }
@@ -47,7 +47,7 @@ export const bishopMove = (initialPosition: Position, desiredPosition: Position,
         //Down-left
         if(desiredPosition.x < initialPosition.x && desiredPosition.y < initialPosition.y){
             let passedPosition = new Position(initialPosition.x - i, initialPosition.y - i);
-            if(samePosition(passedPosition, desiredPosition)){
+            if(passedPosition.samePosition(desiredPosition)){
                 if(tileIsEmptyOrOccupiedByOpponent(passedPosition, boardState, team)){
                     return true;
                 }
