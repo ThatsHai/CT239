@@ -1,150 +1,8 @@
-import { getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, getPossiblePawnMoves, getPossibleQueenMoves, getPossibleRookMoves } from "../Referee/Rules/index.ts";
+import { getCastlingMoves, getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, getPossiblePawnMoves, getPossibleQueenMoves, getPossibleRookMoves } from "../Referee/Rules/index.ts";
 import { PieceType, TeamType } from "../Types.ts";
 import { Pawn } from "./Pawn.ts";
 import { Piece } from "./Pieces.ts";
 import { Position } from "./Position.ts";
-
-// export class Board{
-//     pieces: Piece[];
-//     totalTurns: number;
-
-//     constructor(pieces: Piece[], totalTurns: number){
-//         this.pieces = pieces;
-//         this.totalTurns = totalTurns;
-//     }
-
-//     get currentTeam(): TeamType{
-//       return this.totalTurns % 2 === 0 ? TeamType.OPPONENT : TeamType.OUR;
-//     }
-
-//     calculateAllMoves(){
-//       //Calculate the move of each piece
-//         for(const piece of this.pieces){
-//             piece.possibleMoves = this.getValidMove(piece, this.pieces);
-//         }
-//         this.checkCurrentTeamMoves();
-
-//         //Remove preview move for the team not playing
-//         for (const piece of this.pieces.filter(p => p.team !== this.currentTeam)){
-//           piece.possibleMoves = [];
-//         }
-//     }
-
-//     checkCurrentTeamMoves() {
-//       // Loop through all the current team's pieces
-//       for (const piece of this.pieces.filter(p => p.team === this.currentTeam)) {
-//           if (piece.possibleMoves === undefined) continue;
-
-//           // Simulate all the piece moves
-//           for (const move of piece.possibleMoves) {
-//               const simulatedBoard = this.clone();
-
-//               // Remove the piece at the destination position
-//               simulatedBoard.pieces = simulatedBoard.pieces = simulatedBoard.pieces.filter(p => !p.samePosition(move));
-
-//               // Get the piece of the cloned board
-//               const clonedPiece = simulatedBoard.pieces.find(p => p.samePiecePosition(piece))!;
-//               clonedPiece.position = move.clone();
-
-//               // Get the king of the cloned board
-//               const clonedKing = simulatedBoard.pieces.find(p => p.isKing && p.team === simulatedBoard.currentTeam)!;
-
-//               // Loop through all enemy pieces, update their possible moves
-//               // And check if the current team's king will be in danger
-//               for (const enemy of simulatedBoard.pieces.filter(p => p.team !== simulatedBoard.currentTeam)) {
-//                   enemy.possibleMoves = simulatedBoard.getValidMove(enemy, simulatedBoard.pieces);
-
-//                   if (enemy.isPawn) {
-//                       if (enemy.possibleMoves.some(m => m.x !== enemy.position.x && m.samePosition(clonedKing.position))) {
-//                           piece.possibleMoves = piece.possibleMoves?.filter(m => !m.samePosition(move));
-//                       }
-//                   } else {
-//                       if (enemy.possibleMoves.some(m => m.samePosition(clonedKing.position))) {
-//                           piece.possibleMoves = piece.possibleMoves?.filter(m => !m.samePosition(move));
-//                       }
-//                   }
-//               }
-//           }
-//       }
-//   }
-//     playMove(enPassantMove: boolean, validMove: boolean, playedPiece: Piece, destination: Position): boolean{
-//         const pawnDirection = (playedPiece.team === TeamType.OUR) ? 1 : -1;;
-//         if(enPassantMove){
-//             this.pieces = this.pieces.reduce((results, piece) => {
-//               if(piece.samePiecePosition(playedPiece)){
-
-//                 if(piece.isPawn)
-//                     (piece as Pawn).enPassant = false; 
-//               //   In case doesn't work, change piece.type to playedPiece.type
-//                 piece.position.x = destination.x;
-//                 piece.position.y = destination.y;
-//                 results.push(piece);
-//               }else if(!(piece.samePosition(new Position(destination.x, destination.y - pawnDirection)))){
-//                 if(piece.isPawn){
-//                   (piece as Pawn).enPassant = false;
-//                 }
-//                 results.push(piece); 
-//               }
-
-//               return results;
-//             }, [] as Piece[]);
-//             this.calculateAllMoves();
-//           }else if(validMove){
-  
-//             //Update position and remove piece
-//             this.pieces = this.pieces.reduce((results, piece) =>{
-//               if(piece.samePiecePosition(playedPiece)){
-//                 if(Math.abs(playedPiece.position.y - destination.y) === 2 && piece.isPawn){
-//                   //EnPassant check
-//                   (piece as Pawn).enPassant = true;
-//                 }else{
-//                   (piece as Pawn).enPassant = false;
-//                 }
-//                 piece.position.x = destination.x;
-//                 piece.position.y = destination.y;
-//                 results.push(piece);
-  
-                
-//                 results.push(piece);
-//               }else if(!piece.samePosition(new Position(destination.x, destination.y))){
-//                 if(piece.isPawn){
-//                   (piece as Pawn).enPassant = false;
-//                 }
-//                 results.push(piece);
-//               }
-              
-  
-//               return results;
-//             }, [] as Piece[]);
-//             this.calculateAllMoves();  
-//           }else{
-//             //Reset piece position
-//             return false;
-//           }
-//         return true;
-//     }
-//     getValidMove(piece: Piece, boardState: Piece[]): Position[]{
-//         switch(piece.type){
-//             case PieceType.PAWN:
-//                 return getPossiblePawnMoves(piece, boardState);
-//             case PieceType.KNIGHT:
-//                 return getPossibleKnightMoves(piece, boardState);
-//             case PieceType.BISHOP:
-//                 return getPossibleBishopMoves(piece, boardState);
-//             case PieceType.ROOK:
-//                 return getPossibleRookMoves(piece, boardState);
-//             case PieceType.QUEEN:
-//                 return getPossibleQueenMoves(piece, boardState);
-//             case PieceType.KING:
-//                 return getPossibleKingMoves(piece, boardState);
-//             default:
-//                 return [];
-//         }
-//     }
-//     clone(): Board{
-//         return new Board(this.pieces.map(p => p.clone()), this.totalTurns);
-//     }
-// }   
 
 export class Board {
     pieces: Piece[];
@@ -170,7 +28,7 @@ export class Board {
         for (const king of this.pieces.filter(p => p.isKing)) {
             if (king.possibleMoves === undefined) continue;
 
-            // king.possibleMoves = [...king.possibleMoves, ...getCastlingMoves(king, this.pieces)];
+            king.possibleMoves = [...king.possibleMoves, ...getCastlingMoves(king, this.pieces)];
         }
 
         // Check if the current team moves are valid
@@ -180,7 +38,6 @@ export class Board {
         for (const piece of this.pieces.filter(p => p.team !== this.currentTeam)) {
             piece.possibleMoves = [];
         }
-
         // Check if the playing team still has moves left
         // Otherwise, checkmate!
         if (this.pieces.filter(p => p.team === this.currentTeam).some(p => p.possibleMoves !== undefined && p.possibleMoves.length > 0)) return;
@@ -275,7 +132,7 @@ export class Board {
                         (piece as Pawn).enPassant = false;
                     piece.position.x = destination.x;
                     piece.position.y = destination.y;
-                    // piece.hasMoved = true;
+                    piece.hasMoved = true;
                     results.push(piece);
                 } else if (
                     !piece.samePosition(new Position(destination.x, destination.y - pawnDirection))
@@ -303,7 +160,7 @@ export class Board {
                             piece.type === PieceType.PAWN;
                     piece.position.x = destination.x;
                     piece.position.y = destination.y;
-                    // piece.hasMoved = true;
+                    piece.hasMoved = true;
                     results.push(piece);
                 } else if (!piece.samePosition(destination)) {
                     if (piece.isPawn) {

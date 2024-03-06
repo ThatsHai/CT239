@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { initialBoard } from '../../Constants.ts';
 import Chessboard from '../Chessboard/Chessboard.tsx';
 import { bishopMove, kingMove, knightMove, pawnMove, queenMove, rookMove} from "../../Referee/Rules/index.ts";
@@ -8,49 +8,12 @@ import { Pawn } from '../../models/Pawn.ts';
 import { Board } from '../../models/Board.ts';
 
 export default function Referee(){
-    const [board, setBoard] = useState<Board>(initialBoard);
+    const [board, setBoard] = useState<Board>(initialBoard.clone());
     const [promotionPawn, setPromotionPawn] = useState<Piece>();
     const modalRef = useRef<HTMLDivElement>(null);
-
+    const checkmateModalRef = useRef<HTMLDivElement>(null);
     //Update possible move on the first move
-    useEffect(() =>{
-      board.calculateAllMoves();
-    });
-    // }, []); Change to this line in case of error;
     
-    // function playMove(playedPiece: Piece, destination: Position): boolean{
-    //   if(playedPiece === undefined) return false;
-
-    //   if(playedPiece.team === TeamType.OUR && board.totalTurns % 2 !== 1){
-    //     return false;
-    //   }
-    //   if(playedPiece.team === TeamType.OPPONENT && board.totalTurns % 2 !== 0){
-    //     return false;
-    //   }
-    //   let playedMoveIsValid = false;
-    //   const validMove = playedPiece.possibleMoves?.some(m => m.samePosition(destination));
-    //   if (!validMove) return false;
-      
-    //   const enPassantMove = isEnPassantMove(playedPiece.position, destination, playedPiece.type, playedPiece.team);
-    //   setBoard((previousBoard) =>{
-    //     const clonedBoard = board.clone();
-    //     playedMoveIsValid = board.playMove(enPassantMove, validMove, playedPiece, destination);
-    //     clonedBoard.totalTurns += 1;
-    //     // return board.clone();
-    //     return clonedBoard;
-    //   })
-    //   let promotionRow = (playedPiece.team === TeamType.OUR) ? 7 : 0;
-    //   if(destination.y === promotionRow && playedPiece.isPawn){
-    //     modalRef.current?.classList.remove("hidden");
-    //     setPromotionPawn((previousPromotionPawn) => {
-    //       const clonedPlayedPiece = playedPiece.clone();
-    //       clonedPlayedPiece.position = destination.clone();
-    //       return clonedPlayedPiece;
-    //     });
-    //     updatePossibleMoves();
-    //   }
-    //   return playedMoveIsValid;
-    // }
     function playMove(playedPiece: Piece, destination: Position): boolean {
       // If the playing piece doesn't have any moves return
       if (playedPiece.possibleMoves === undefined) return false;
@@ -68,12 +31,19 @@ export default function Referee(){
       const enPassantMove = isEnPassantMove(playedPiece.position, destination, playedPiece.type, playedPiece.team
       );
       setBoard(() => {
-          const clonedBoard = board.clone();
-          clonedBoard.totalTurns += 1;
-          // Playing the move
-          playedMoveIsValid = clonedBoard.playMove(enPassantMove, validMove, playedPiece, destination);
-          return clonedBoard;
-      })
+        const clonedBoard = board.clone();
+        clonedBoard.totalTurns += 1;
+        // Playing the move
+        playedMoveIsValid = clonedBoard.playMove(enPassantMove,
+            validMove, playedPiece,
+            destination);
+
+        
+        if(clonedBoard.winningTeam !== undefined) {
+            checkmateModalRef.current?.classList.remove("hidden");
+        }
+        return clonedBoard;
+    })
 
       // This is for promoting a pawn
       let promotionRow = (playedPiece.team === TeamType.OUR) ? 7 : 0;
@@ -90,6 +60,7 @@ export default function Referee(){
       return playedMoveIsValid;
   }
     
+  //eslint-disable-next-line
     function isValidMove(initialPosition: Position, desiredPosition: Position, type: PieceType, team: TeamType){
       let validMove = false;
       switch(type){
@@ -136,7 +107,7 @@ export default function Referee(){
         const clonedBoard = board.clone();
         clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
           if(piece.samePiecePosition(promotionPawn)){
-            results.push(new Piece(piece.position.clone(), pieceType, piece.team));
+            results.push(new Piece(piece.position.clone(), pieceType, piece.team, true));
           }else{
             results.push(piece);
           }
@@ -149,19 +120,23 @@ export default function Referee(){
       })
   
       modalRef.current?.classList.add("hidden");
-      }
+    }
 
-      function promotionTeamType(){
-        return (promotionPawn?.team === TeamType.OUR) ? "w" : "b";
-      }
+    function promotionTeamType(){
+      return (promotionPawn?.team === TeamType.OUR) ? "w" : "b";
+    }
     
+    function restartGame(){
+      checkmateModalRef.current?.classList.add("hidden");
+      setBoard(initialBoard.clone());
+    }
     
     return(
     <>
-        <p style={{color: "white", fontSize: "24px"}}>
-          {board.totalTurns}
+        <p style={{color: "white", fontSize: "24px", textAlign: "center"}}>
+          Total turns: {board.totalTurns}
         </p>
-        <div id="pawn-promotion-modal" className="hidden" ref={modalRef}>
+        <div className='modal hidden' ref={modalRef}>
             <div className="modal-body"> 
                 {/* modal-body is used to prevent user from selecting the background pieces */}
                 <img onClick={() => promotePawn(PieceType.ROOK)} src={`/assets/images/rook_${promotionTeamType()}.png`} alt=''/>
@@ -169,6 +144,14 @@ export default function Referee(){
                 <img onClick={() => promotePawn(PieceType.KNIGHT)} src={`/assets/images/knight_${promotionTeamType()}.png`} alt=''/>
                 <img onClick={() => promotePawn(PieceType.QUEEN)} src={`/assets/images/queen_${promotionTeamType()}.png`} alt=''/>
             </div>
+        </div>
+        <div className='modal hidden' ref={checkmateModalRef}>
+          <div className='modal-body'>
+            <div className='checkmate-body'>
+              <span>The winning team is {board.winningTeam === TeamType.OUR ? "white" : "black"}</span>
+              <button onClick={restartGame}>Play again</button>
+            </div>
+          </div>
         </div>
         <Chessboard playMove={playMove} pieces={board.pieces}/>
     </>)
