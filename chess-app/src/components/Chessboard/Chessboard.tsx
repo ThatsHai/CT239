@@ -4,13 +4,16 @@ import Tile from "../Tile/Tile.tsx";
 import "./Chessboard.css";
 import { VERTICAL_AXIS, HORIZONTAL_AXIS, GRID_SIZE } from '../../Constants.ts';
 import { Piece, Position } from "../../models/index.ts";
+import { TeamType } from '../../Types.ts';
 
 interface Props{
   playMove: (piece: Piece, position: Position) => boolean;
   pieces: Piece[];
+  team: TeamType | undefined;
+  totalTurns: number;
 }
 
-export default function Chessboard({playMove, pieces}: Props) {
+export default function Chessboard({playMove, pieces, team, totalTurns}: Props) {
   const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
   const [grabPosition, setGrabPosition] = useState<Position>(new Position(-1, -1));
   const chessboardRef = useRef<HTMLDivElement>(null);
@@ -22,7 +25,16 @@ export default function Chessboard({playMove, pieces}: Props) {
     if(element.classList.contains("chess-piece") && chessboard){
       const grabX = Math.floor((e.clientX - chessboard.offsetLeft) / GRID_SIZE);
       const grabY = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - 800) / GRID_SIZE));
-      setGrabPosition(new Position(grabX, grabY));
+      
+      const pos = new Position(grabX, grabY)
+      let currentPiece = pieces.find(p => p.samePosition(pos));
+      if (currentPiece) {
+        if (team === TeamType.OUR && totalTurns % 2 !== 1) return;
+        if (team === TeamType.OPPONENT && totalTurns % 2 !== 0) return;
+      }
+      setGrabPosition(pos);
+
+      // setGrabPosition(new Position(grabX, grabY));
       // Resolve image offset
       const x = e.clientX - GRID_SIZE/2;
       const y = e.clientY - GRID_SIZE/2;
@@ -97,7 +109,7 @@ export default function Chessboard({playMove, pieces}: Props) {
           //If let go of the piece, the move preview of the piece will be gone
           let currentPiece = activePiece != null ? pieces.find(p => p.samePosition(grabPosition)) : undefined;
           let highlight = currentPiece?.possibleMoves ? currentPiece.possibleMoves.some(p => p.samePosition(new Position(i, j))) : false;
-          
+
           board.push(<Tile key={`${j},${i}`} image={image} number={number} highlight={highlight}/>);
       }
     }
