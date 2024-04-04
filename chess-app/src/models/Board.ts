@@ -120,7 +120,8 @@ export class Board {
 
                 return p;
             });
-
+            let audio = new Audio("assets/sound/castling.mp3");
+            audio.play()
             this.calculateAllMoves();
             return true;
         }

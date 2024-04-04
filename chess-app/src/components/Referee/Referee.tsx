@@ -102,6 +102,15 @@ export default function Referee(){
 			});
 		}, [board, gameID, team, promotionPawn]);
 
+    function pieceMovedAudio() {
+      let audio = new Audio("assets/sound/final_chess_move_sound.mp3");
+      audio.play()
+   }
+    function pawnPromotionAudio() {
+      let audio = new Audio("assets/sound/promotion.mp3");
+      audio.play()
+   }
+    
     function playMove(playedPiece: Piece, destination: Position): boolean {
       // If the playing piece doesn't have any moves return
       if (playedPiece.possibleMoves === undefined) return false;
@@ -133,6 +142,7 @@ export default function Referee(){
         if(clonedBoard.winningTeam !== undefined) {
             checkmateModalRef.current?.classList.remove("hidden");
         }
+        pieceMovedAudio();
         return clonedBoard;
     })
 
@@ -207,6 +217,7 @@ export default function Referee(){
           return results;
         }, [] as Piece[]);
         clonedBoard.calculateAllMoves();
+        pawnPromotionAudio();
         return clonedBoard;
         //If stop only return board, React doesn't recognize it as it expect a new obj
         //so it is needed to make a new value
