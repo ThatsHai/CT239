@@ -2,11 +2,14 @@ import './Home.css';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
+
 export default function Home() {
 	const navigate = useNavigate();
 	const [id, setId] = useState('');
 	const [choice, setChoice] = useState('');
-
+	let randomInput = false;
+	localStorage.setItem('randomInput', 'false');
 	useEffect(() => {
 		const roomID = Date.now().toFixed(0);
 		setId(roomID);
@@ -15,6 +18,17 @@ export default function Home() {
 	const handlePlayGame = () => {
 		navigate('/game', { state: { id } });
 	};
+
+	const randomInputFunction = () => {
+		if(!randomInput){
+			localStorage.setItem('randomInput', 'true');
+			randomInput = true;}
+		else{
+			localStorage.setItem('randomInput', 'false');
+			randomInput = false;}
+		console.log(randomInput);
+		console.log(localStorage.getItem('randomInput'));
+	}
 
 	const handleCopyID = () => {
 		navigator.clipboard.writeText(id);
@@ -28,6 +42,7 @@ export default function Home() {
 	const joinRoom = () => {
 		setChoice('join');
 	};
+
 
 	return (
 		<>
@@ -50,6 +65,11 @@ export default function Home() {
 					<label htmlFor="link">Your room ID: </label>
 					<input readOnly={true} type="text" name="link" id="link" value={id} />
 					<input type="button" value="Copy" onClick={handleCopyID} />
+				</div>
+				
+				<div>
+					<label htmlFor="randomized">Randomized pieces?</label>
+					<input type="checkbox" id="random" onChange={randomInputFunction}></input>
 				</div>
 				<button onClick={handlePlayGame}>Play Game</button>
 			</div>

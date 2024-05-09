@@ -45,6 +45,7 @@ export class Board {
         this.winningTeam = (this.currentTeam === TeamType.OUR) ? TeamType.OPPONENT : TeamType.OUR;
     }
 
+    
     checkCurrentTeamMoves() {
         // Loop through all the current team's pieces
         for (const piece of this.pieces.filter(p => p.team === this.currentTeam)) {

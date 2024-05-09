@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {useLocation} from 'react-router-dom'
-import { initialBoard } from '../../Constants.ts';
+import { initialBoard, randomBoard } from '../../Constants.ts';
 import Chessboard from '../Chessboard/Chessboard.tsx';
 import { bishopMove, kingMove, knightMove, pawnMove, queenMove, rookMove} from "../../Referee/Rules/index.ts";
 import { Piece, Position } from "../../models/index.ts";
@@ -14,7 +14,13 @@ const SERVER_URL = 'http://localhost:5000';
 const socket = io(SERVER_URL)
 
 export default function Referee(){
-    const [board, setBoard] = useState<Board>(initialBoard.clone());
+    // let initialBoardToUse = localStorage.getItem('randomInput') ? initialBoard : randomBoard;
+    // console.log(localStorage.getItem('randomInput'));
+    // const [board, setBoard] = useState<Board>(initialBoardToUse.clone());
+
+    const [board, setBoard] = useState<Board>(localStorage.getItem('randomInput') === 'false'? initialBoard.clone() : randomBoard.clone());
+
+    
     const [promotionPawn, setPromotionPawn] = useState<Piece>();
     const modalRef = useRef<HTMLDivElement>(null);
     const checkmateModalRef = useRef<HTMLDivElement>(null);
@@ -233,13 +239,58 @@ export default function Referee(){
     function restartGame(){
       checkmateModalRef.current?.classList.add("hidden");
       setBoard(initialBoard.clone());
+      setBoard(randomBoard.clone());
+    }
+    function grayColorBackground(){
+      document.querySelectorAll('.black-tile').forEach((tile) => {
+        (tile as HTMLElement).style.backgroundColor = "gray";
+      });
+      document.querySelectorAll('.white-tile').forEach((tile) => {
+        (tile as HTMLElement).style.backgroundColor = "white";
+      });
+    }
+    function brownColorBackground(){
+      document.querySelectorAll('.black-tile').forEach((tile) => {
+        (tile as HTMLElement).style.backgroundColor = "#61543D";
+      });
+      document.querySelectorAll('.white-tile').forEach((tile) => {
+        (tile as HTMLElement).style.backgroundColor = "#BAA378";
+      });
+    }
+    function yellowColorBackground(){
+      document.querySelectorAll('.black-tile').forEach((tile) => {
+        (tile as HTMLElement).style.backgroundColor = "#77A26D";
+      });
+      document.querySelectorAll('.white-tile').forEach((tile) => {
+        (tile as HTMLElement).style.backgroundColor = "#C8C365";
+      });
+    }
+    function defaultColorBackground(){
+      document.querySelectorAll('.black-tile').forEach((tile) => {
+        (tile as HTMLElement).style.backgroundColor = "#779556";
+      });
+      document.querySelectorAll('.white-tile').forEach((tile) => {
+        (tile as HTMLElement).style.backgroundColor = "#ebecd0";
+      });
     }
     
     return(
     <>
-        <p style={{color: "white", fontSize: "24px", textAlign: "center"}}>
-          Total turns: {board.totalTurns}
+        <p style={{color: "white", fontSize: "30px", textAlign: "center"}}>
+          TOTAL TURNS: {board.totalTurns}
         </p>
+
+        <div style={{marginTop: "-10px"}}>
+          <button id='colorChange' onClick={grayColorBackground} style={{height: "20px", width: "20px", backgroundColor: "#A5A5A5"}}>
+          </button>
+          <button id='colorChange' onClick={brownColorBackground} style={{height: "20px", width: "20px", backgroundColor: "#61543D"}}>
+          </button>
+          <button id='colorChange' onClick={yellowColorBackground} style={{height: "20px", width: "20px", backgroundColor: "#77A26D"}}>
+          </button>
+          <button id='colorChange' onClick={defaultColorBackground} style={{height: "20px", width: "20px", backgroundColor: "#77A26D"}}>
+          </button>
+        </div>
+
         <div className='modal hidden' ref={modalRef}>
             <div className="modal-body"> 
                 {/* modal-body is used to prevent user from selecting the background pieces */}
